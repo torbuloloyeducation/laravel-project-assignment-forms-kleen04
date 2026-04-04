@@ -1,29 +1,62 @@
 <x-layout>
-    <form method="POST" action="/formtest">
-        @csrf
-<div class="space-y-12">
-    <div class="border-b border-white/10">
-      <div class="mt-2 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-12 p-10 bg-gray-800 rounded-lg">
-        <div class="sm:col-span-4">
-          <label for="email" class="block text-sm/6 font-medium text-white">Email</label>
-          <div class="mt-2">
-            <div class="flex items-center rounded-md bg-white/5 pl-3 outline-1 -outline-offset-1 outline-white/10 focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-indigo-500">
-              <input id="email" type="email" name="email" placeholder="juandelacruz@umindanao.edu.ph" class="block min-w-0 grow bg-transparent py-1.5 pr-3 pl-1 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-sm/6" />
-            </div>
-            <div class="mt-3 flex items-center gap-x-6 justify-end">
-            <button type="submit" class="rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Save</button>
+
+<h1>Email</h1>
+<p>Add and manage up to 5 email addresses.</p>
+
+<br>
+
+<div class="card">
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('warning'))
+        <div class="alert alert-warning">{{ session('warning') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="alert alert-error">{{ $errors->first('email') }}</div>
+    @endif
+
+    @if(count(session('emails', [])) >= 5)
+        <div class="alert alert-warning">Maximum of 5 emails reached.</div>
+    @else
+        <form method="POST" action="/formtest">
+            @csrf
+            <label for="email">Email Address</label>
+            <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="juandelacruz@umindanao.edu.ph"
+            />
+            <br><br>
+            <div style="display:flex; justify-content:flex-end;">
+                <button type="submit">Save</button>
             </div>
         </form>
-          </div>
-          <div class="mt-3 p-5">
-            <h2 class="text-lg font-semibold text-white">Emails</h2>
-        <ul>
-            @foreach ($emails as $email)
-                <li class="text-sm p-1">{{ $email }}</li>
-            @endforeach
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+    @endif
+
+</div>
+
+@if(count(session('emails', [])) > 0)
+<br>
+<div class="card">
+    <h2>Saved Emails</h2>
+    <p style="margin-top:4px;">{{ count(session('emails', [])) }} of 5 emails saved.</p>
+
+    <ul>
+        @foreach(session('emails', []) as $index => $email)
+            <li>
+                <span>{{ $email }}</span>
+                <form method="POST" action="/emails/delete">
+                    @csrf
+                    <input type="hidden" name="index" value="{{ $index }}" />
+                    <button type="submit" class="btn-delete">Delete</button>
+                </form>
+            </li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 </x-layout>
